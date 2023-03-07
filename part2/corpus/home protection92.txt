@@ -1,0 +1,1 @@
+What do you do when your compiler starts phoning home data about your usage? Is it a problem and is there an alternative?

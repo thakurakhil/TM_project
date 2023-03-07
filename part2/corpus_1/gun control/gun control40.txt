@@ -1,0 +1,1 @@
+With NVIDIA's latest Game Ready Driver, owners of RTX 30 and RTX 40 series of video cards can now enable RTX Video Super Resolution. The software features upscaling and adds clarity to lower-resolution videos when streaming in a supported web browser. Here's …
