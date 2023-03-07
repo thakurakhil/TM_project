@@ -134,9 +134,9 @@ gunsfile = "MyTextOutfile_count.csv"
 
 df = read.csv(gunsfile, stringsAsFactors = F, na.strings=c("","NA"))
 
-TransactionredditFile = "RedditResults.csv"
+TransactiongunsFile = "gunsResults.csv"
 
-Trans = file(TransactionredditFile)
+Trans = file(TransactiongunsFile)
 Tokens = tokenizers::tokenize_words(df$Post[1], stopwords = stopwords::stopwords("en"), lowercase = TRUE, 
                                     strip_punct = TRUE, strip_numeric = TRUE, simplify = TRUE)
 
@@ -144,7 +144,7 @@ Tokens = tokenizers::tokenize_words(df$Post[1], stopwords = stopwords::stopwords
 cat(unlist(str_squish(Tokens)), "\n", file = Trans, sep = ",")
 close(Trans)
 
-Trans = file(TransactionredditFile, open="a" )
+Trans = file(TransactiongunsFile, open="a" )
 for(i in 2:nrow(df)){
   Tokens = tokenizers::tokenize_words(df$Post[i], stopwords = stopwords::stopwords("en"), lowercase = TRUE, 
                                       strip_punct = TRUE, strip_numeric = TRUE, simplify = TRUE)
@@ -153,28 +153,28 @@ for(i in 2:nrow(df)){
 }
 close(Trans)
 
-redditDF = read.csv(TransactionredditFile, header = FALSE, sep= ",")
-head(redditDF)
+gunsDF = read.csv(TransactiongunsFile, header = FALSE, sep= ",")
+head(gunsDF)
 
-(str(redditDF))
+(str(gunsDF))
 
-redditDF = redditDF %>%
+gunsDF = gunsDF %>%
   mutate_all(as.character)
-(str(redditDF))
+(str(gunsDF))
 
 
 ## Cleaning with grepl
 myDF = NULL
-for(i in 1:ncol(redditDF)){
+for(i in 1:ncol(gunsDF)){
   MyList = c()
-  MyList = c(MyList, grepl("[[:digit:]]", redditDF[[i]]))
+  MyList = c(MyList, grepl("[[:digit:]]", gunsDF[[i]]))
   myDF = cbind(myDF, MyList)
 }
 
 ## For all true replace with blank
 
-redditDF[myDF] <- ""
-(redditDF)
+gunsDF[myDF] <- ""
+(gunsDF)
 
 
 ## More cleaning
@@ -182,15 +182,15 @@ myDF = NULL
 myDF2 = NULL
 myDF3 = NULL
 
-for(i in 1:ncol(redditDF)){
+for(i in 1:ncol(gunsDF)){
   MyList = c()
-  MyList = c(MyList, grepl("[[:digit:]]", redditDF[[i]]))
+  MyList = c(MyList, grepl("[[:digit:]]", gunsDF[[i]]))
   
   MyList2 = c()
-  MyList2 = c(MyList, grepl("[A-Z]{4,}", redditDF[[i]]))
+  MyList2 = c(MyList, grepl("[A-Z]{4,}", gunsDF[[i]]))
   
   MyList3 = c()
-  MyList3 = c(MyList, grepl("[A-Z]{12,}", redditDF[[i]]))
+  MyList3 = c(MyList, grepl("[A-Z]{12,}", gunsDF[[i]]))
   
   
   myDF = cbind(myDF, MyList)
@@ -199,112 +199,17 @@ for(i in 1:ncol(redditDF)){
   
 }
 
-redditDF[myDF] <- ""
-redditDF[!myDF2] <- ""
-redditDF[myDF] <- ""
-(redditDF)
+gunsDF[myDF] <- ""
+gunsDF[!myDF2] <- ""
+gunsDF[myDF] <- ""
+(gunsDF)
 
 
-head(redditDF, 10)
+head(gunsDF, 10)
+
+sortedRules_conf = sort(gunsTrans_rules, by="confidence", decreasing = TRUE)
+sortedRules_sup = sort(gunsTrans_rules, by="support", decreasing = TRUE)
+plot(sortedRules_sup[1:25], method = "graph", engine = 'interactive', shading = "confidence")
+plot(sortedRules_sup[1:30], method = "graph", engine = 'htmlwidget', shading = "confidence")
 
 
-
-
-
-
-
-
-gunsdata <- read.transactions("MyTextOutfile_count.csv",
-                                rm.duplicates = TRUE, 
-                                format = "basket",  ##if you use "single" also use cols=c(1,2)
-                                sep=" ")  ## csv file) ## The dataset HAS row numbers
-inspect(gunsdata)
-
-##### Use apriori to get the RULES
-FrulesK = arules::apriori(gunsdata, parameter = list(support=.35, 
-                                                       confidence=.5, minlen=2))
-inspect(FrulesK)
-
-## Plot of which items are most frequent
-itemFrequencyPlot(FoodsKumar, topN=20, type="absolute")
-
-## Sort rules by a measure such as conf, sup, or lift
-SortedRulesK <- sort(FrulesK, by="confidence", decreasing=TRUE)
-inspect(SortedRulesK[1:3])
-(summary(SortedRulesK))
-
-## Selecting or targeting specific rules  RHS
-BeerRules <- apriori(data=FoodsKumar,parameter = list(supp=.001, conf=.01, minlen=2),
-                     appearance = list(default="lhs", rhs="Beer"),
-                     control=list(verbose=FALSE))
-BeerRules <- sort(BeerRules, decreasing=TRUE, by="confidence")
-inspect(BeerRules[1:4])
-
-## Selecting rules with LHS specified
-BreadRules <- apriori(data=FoodsKumar,parameter = list(supp=.001, conf=.01, minlen=2),
-                      appearance = list(default="rhs", lhs="Bread"),
-                      control=list(verbose=FALSE))
-BreadRules <- sort(BreadRules, decreasing=TRUE, by="support")
-inspect(BreadRules[1:4])
-
-## Visualize
-## tcltk
-
-subrulesK <- head(sort(SortedRulesK, by="lift"),10)
-plot(subrulesK)
-
-plot(subrulesK, method="graph", engine="interactive")
-
-
-
-
-####################################################
-## Example 2: Healthy Food Transaction Data
-##
-## HERE IS THE DATA - but you should make your own dataset!
-## https://drive.google.com/file/d/1qaWSTwjrj7tNB43zLss9KC_ecJKp6W4g/view?usp=sharing
-##
-##############################################################
-
-Foods <- read.transactions("HealthyBasketData.csv",
-                           rm.duplicates = FALSE, 
-                           format = "basket",  ##if you use "single" also use cols=c(1,2)
-                           sep=",",  ## csv file
-                           cols=NULL) ## The dataset has no row numbers
-inspect(Foods)
-
-##### Use apriori to get the RULES
-Frules = arules::apriori(Foods, parameter = list(support=.35, 
-                                                 confidence=.5, minlen=2))
-inspect(Frules)
-
-## Plot of which items are most frequent
-itemFrequencyPlot(Foods, topN=20, type="absolute")
-
-## Sort rules by a measure such as conf, sup, or lift
-SortedRules <- sort(Frules, by="confidence", decreasing=TRUE)
-inspect(SortedRules[1:10])
-(summary(SortedRules))
-
-## Selecting or targeting specific rules  RHS
-ChocRules <- apriori(data=Foods,parameter = list(supp=.001, conf=.01, minlen=2),
-                     appearance = list(default="lhs", rhs="chocloate"),
-                     control=list(verbose=FALSE))
-ChocRules <- sort(ChocRules, decreasing=TRUE, by="confidence")
-inspect(ChocRules[1:4])
-
-## Selecting rules with LHS specified
-CarrotRules <- apriori(data=Foods,parameter = list(supp=.001, conf=.01, minlen=2),
-                       appearance = list(default="rhs", lhs="carrot"),
-                       control=list(verbose=FALSE))
-CarrotRules <- sort(CarrotRules, decreasing=TRUE, by="support")
-inspect(CarrotRules[1:4])
-
-## Visualize
-## tcltk
-
-subrules <- head(sort(SortedRules, by="lift"),10)
-plot(subrules)
-
-#plot(subrules, method="graph", engine="interactive")
-plot(subrules, method="graph", engine="htmlwidget")
