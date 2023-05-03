@@ -1,0 +1,6 @@
+At a glanceExpert's Rating
+
+Pros
+<ul><li>Manages login credentials</li><li>Hides email addresses and credit card numbers</li><li>Blocks trackers</li></ul>
+Cons
+<ul><li>Requires paid subscription to unlock advanced features</li><li>Some features still in b…

@@ -1,0 +1,1 @@
+Algorithms reflect bias: that of the programmers and the data sets, a new kind of virus infecting machine learning. Machine learning can, through algorithmic oppression, replicate social prejudices and structures of inequality. These are conclusions that crea…
